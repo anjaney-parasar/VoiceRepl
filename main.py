@@ -1,6 +1,9 @@
 import logging
 from fastapi import FastAPI, Request, Form
 from fastapi.templating import Jinja2Templates
+
+from fastapi.middleware.cors import CORSMiddleware
+
 import os
 import uvicorn
 import sys 
@@ -21,7 +24,7 @@ from vocode.streaming.synthesizer.play_ht_synthesizer_v2 import PlayHtSynthesize
 SYNTH_CONFIG=PlayHtSynthesizerConfig.from_telephone_output_device(
                               api_key=os.getenv("PLAY_HT_API_KEY"),
                               user_id=os.getenv("PLAY_HT_USER_ID"),
-                              voice_id="s3://voice-cloning-zero-shot/89434fde-9cbd-4dcd-8076-beae78554562/original/manifest.json",
+                              voice_id="s3://voice-cloning-zero-shot/e9566e83-9cef-488f-ac26-54d9c7878aa7/original/manifest.json",
 
       )
 # SYNTH_CONFIG = StreamElementsSynthesizerConfig.from_telephone_output_device()
@@ -70,7 +73,16 @@ configure_pretty_logging()
 from typing import Optional
 
 app = FastAPI(docs_url=None)
-templates = Jinja2Templates(directory="templates")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
+
+# templates = Jinja2Templates(directory="templates")
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
@@ -230,10 +242,10 @@ async def root(request: Request):
     "OUTBOUND_CALLER_NUMBER": os.environ.get("OUTBOUND_CALLER_NUMBER")
   }
 
-  return templates.TemplateResponse("index.html", {
-    "request": request,
-    "env_vars": env_vars
-  })
+  # return templates.TemplateResponse("index.html", {
+  #   "request": request,
+  #   "env_vars": env_vars,
+  # })
 
 
 @app.post("/start_outbound_call")

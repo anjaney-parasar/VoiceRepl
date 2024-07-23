@@ -76,6 +76,18 @@
   </style>
 </head>
 <body>
+  <h2>AI Instructions</h2>
+  <form id="instructions" class="call-form">
+      <label for="systemInstruction">System Instruction:</label>
+      <input type="text" id="systemInstruction" name="systemInstruction">
+      <br>
+      <label for="contentPrompt">Content Prompt:</label>
+      <input type="text" id="contentPrompt" name="contentPrompt">
+      <br>
+      <input type="submit" value="Start Call">
+  </form>
+
+
     <h2>Twilio</h2>
     <p>Paste the following URL into your Twilio config:<b>https://{{ env_vars.BASE_URL}}/inbound_call</b></p>
     <h2>Env Variables</h2>
