@@ -195,7 +195,7 @@ async def api_start_outbound_zoom(
 
 
 
-def run_fastapi(port=8000):
-    uvicorn.run(app, host="127.0.0.1", port=port)
+# def run_fastapi(port=8000):
+#     uvicorn.run(app, host="127.0.0.1", port=port)
 
 # uvicorn.run(app, host="0.0.0.0", port=3000)
