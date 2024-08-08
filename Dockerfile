@@ -24,6 +24,7 @@ RUN mkdir -p /app/db
 
 # Expose the port the app runs on
 EXPOSE 8501
+EXPOSE 8000
 
-# Command to run both FastAPI and Streamlit
-CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port 8000 & streamlit run streamlit_app.py"]
+# Command to run Streamlit
+CMD ["streamlit", "run", "streamlit_app.py", "--server.port=8501", "--server.address=0.0.0.0"]

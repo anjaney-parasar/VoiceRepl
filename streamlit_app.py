@@ -6,7 +6,33 @@ from main import run_fastapi
 from server_manager import ServerManager
 from roadmap import prompt, roadmap
 import multiprocessing
+import subprocess
+import time
 load_dotenv()
+
+# Start FastAPI server
+def start_fastapi_server():
+    subprocess.Popen(["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"])
+
+# Wait for FastAPI server to start
+def wait_for_fastapi():
+    max_retries = 30
+    for _ in range(max_retries):
+        try:
+            requests.get("http://localhost:8000")
+            return True
+        except requests.ConnectionError:
+            time.sleep(1)
+    return False
+
+# Start FastAPI server when Streamlit app starts
+start_fastapi_server()
+
+# Wait for FastAPI server to start
+if not wait_for_fastapi():
+    st.error("Failed to start FastAPI server")
+    st.stop()
+
 
 
 VOICE_AVATARS = {
@@ -107,8 +133,8 @@ def main():
             else:
                 st.error(f"Error updating Play.ht configuration: {response.text}")
 
-    server_manager = get_server_manager()
-    server_manager.start_server()
+    # server_manager = get_server_manager()
+    # server_manager.start_server()
 
     st.header("For Inbound calls")
     st.write("Give a call at +18159402559")
