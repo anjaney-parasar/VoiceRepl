@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import sys 
 
-from vocode.logging import configure_pretty_logging
+# from vocode.logging import configure_pretty_logging
 from events_manager import EventsManager
 
 import asyncio
@@ -27,7 +27,7 @@ from memory_config import config_manager
 from dotenv import load_dotenv
 load_dotenv()
 
-configure_pretty_logging()
+# configure_pretty_logging()
 
 from typing import Optional
 
