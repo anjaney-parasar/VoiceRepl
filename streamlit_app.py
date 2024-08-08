@@ -2,7 +2,6 @@ import streamlit as st
 import requests
 import os
 from dotenv import load_dotenv
-from main import run_fastapi
 from server_manager import ServerManager
 from roadmap import prompt, roadmap
 import multiprocessing
