@@ -24,6 +24,6 @@ RUN mkdir -p /code/call_transcripts
 RUN mkdir -p /code/db
 
 # Copy the utils directory (and its contents) into the container
-COPY ./utils /code/utils
+# COPY ./utils /code/utils
 
 CMD ["streamlit", "run", "streamlit_app.py"]
