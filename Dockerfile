@@ -15,11 +15,19 @@ RUN pip install httpx
 RUN poetry config virtualenvs.create false
 RUN poetry install --no-dev --no-interaction --no-ansi
 COPY main.py /code/main.py
+COPY streamlit_app.py /code/streamlit_app.py
 COPY speller_agent.py /code/speller_agent.py
 COPY memory_config.py /code/memory_config.py
 COPY events_manager.py /code/events_manager.py
-COPY config.py /code/config.py
-COPY instructions.txt /code/instructions.txt
+COPY agent.py /code/agent.py
+COPY roadmap.py /code/roadmap.py
+COPY server_manager.py /code/server_manager.py
+COPY synthesizer.py /code/synthesizer.py
+COPY transcriber.py /code/transcriber
+COPY twilio.py /code/twilio.py
+
+# COPY config.py /code/config.py
+# COPY instructions.txt /code/instructions.txt
 RUN mkdir -p /code/call_transcripts
 RUN mkdir -p /code/db
 
