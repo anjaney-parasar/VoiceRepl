@@ -1,17 +1,18 @@
-from vocode.streaming.transcriber.deepgram_transcriber import DeepgramEndpointingConfig
+# from vocode.streaming.transcriber.deepgram_transcriber import DeepgramEndpointingConfig
+
+# from vocode.streaming.models.transcriber import (
+#     DeepgramTranscriberConfig,
+#     PunctuationEndpointingConfig,
+# )
 
 from vocode.streaming.models.transcriber import (
-    DeepgramTranscriberConfig,
-    PunctuationEndpointingConfig,
-)
-
-from vocode.streaming.models.transcriber import (
-          RevAITranscriberConfig, 
-          WhisperCPPTranscriberConfig,
-          EndpointingConfig,
-          AssemblyAITranscriberConfig,
+        #   RevAITranscriberConfig, 
+        #   WhisperCPPTranscriberConfig,
+        #   EndpointingConfig,
+        #   AssemblyAITranscriberConfig,
           GoogleTranscriberConfig,
-          GladiaTranscriberConfig)
+        #   GladiaTranscriberConfig
+          )
 
 # TRANS_CONFIG=AssemblyAITranscriberConfig.from_telephone_input_device(
 #                                     #  sampling_rate=8000,
