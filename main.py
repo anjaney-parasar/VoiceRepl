@@ -43,7 +43,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 app.mount('/static', StaticFiles(directory='static'), name='static')
 templates = Jinja2Templates(directory="templates")
 
@@ -148,6 +147,7 @@ async def root(request: Request):
     "TWILIO_AUTH_TOKEN": os.environ.get("TWILIO_AUTH_TOKEN"),
     "OUTBOUND_CALLER_NUMBER": os.environ.get("OUTBOUND_CALLER_NUMBER")
   }
+  # print("Got env vairables")
 
   return templates.TemplateResponse("index.html", {
     "request": request,
@@ -157,13 +157,13 @@ async def root(request: Request):
 
 @app.post("/change_behaviour")
 async def change_behaviour(
-    systemInstruction: str = Form(...),
-    contentPrompt: str = Form(...)
+    systemPrompt: str = Form(...),
+    content: str = Form(...)
 ):  
-    if systemInstruction:
+    if systemPrompt:
        print("This is working ")
     global AGENT_CONFIG
-    full_prompt = systemInstruction + contentPrompt
+    full_prompt = systemPrompt +content
     AGENT_CONFIG.prompt_preamble = full_prompt
     return {"status": "success"}
 

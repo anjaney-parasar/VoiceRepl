@@ -5,24 +5,9 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
-  <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
   <title>Env Variables Check</title>
-
 </head>
 <body>
-  <h2>AI Instructions</h2>
-
-  <form id="instructions" class="call-form" action="/change_behaviour" method="post">
-      <label for="systemInstruction">System Instruction:</label>
-      <input type="text" id="systemInstruction" name="systemInstruction">
-      <br>
-      <label for="contentPrompt">Content Prompt:</label>
-      <input type="text" id="contentPrompt" name="contentPrompt">
-      <br>
-      <button type="submit">Check</button> 
-  </form>
-
-
     <h2>Twilio</h2>
     <p>Paste the following URL into your Twilio config:<b>https://{{ env_vars.BASE_URL}}/inbound_call</b></p>
     <h2>Env Variables</h2>
@@ -40,12 +25,22 @@
     <h2>Inbound Calls</h2>
   <p>Set the URL above and purchase a Twilio phone number <a href="https://www.twilio.com/docs/voice/tutorials/how-to-respond-to-incoming-phone-calls/python#buy-and-configure-a-phone-number" target="_blank">as described here.</a></p>
   
+    <h2>Change Behaviour</h2>
+    <form id="changeBehaviour", class="call-form">
+      <label for="Behaviour">Behaviour Prompt</label>
+      <textarea name="Behaviour" id="Behaviour"></textarea>
+      <label for="Content">Roadmap</label>
+      <textarea name="Content" id="Content"></textarea>
+      <input type="submit" value="Update Behaviour">
+    </form>
+    
+
   <h2>Quick Outbound Call</h2>
     <form id="outboundCallForm", class="call-form">
         <label for="recipient">Recipient:</label>
         <input type="text" id="recipient" name="recipient" required>
         <br>
-        <button type="submit">Check</button> 
+        <input type="submit" value="Start Call">
     </form>
 
     <h2>Zoom Meeting Call</h2>
@@ -59,52 +54,6 @@
         <input type="submit" value="Start Zoom Call">
     </form>
     <div id="messageContainer"></div>
-
-    <script>
-        const outboundCallForm = document.getElementById("outboundCallForm");
-        const zoomCallForm = document.getElementById("zoomCallForm");
-        const messageContainer = document.getElementById("messageContainer");
-
-        function showMessage(type, text) {
-            messageContainer.innerHTML = `<div class="message ${type}">${text}</div>`;
-        }
-
-        outboundCallForm.addEventListener("submit", async (event) => {
-          console.log("TEST")
-          event.preventDefault();
-          const recipient = document.getElementById("recipient").value;
-          const outboundCallURL = "https://{{env_vars.BASE_URL}}/start_outbound_call";              
-            const response = await fetch(outboundCallURL, {
-                method: "POST",
-                headers: {"Content-Type": "application/x-www-form-urlencoded"},
-                body: `to_phone=${encodeURIComponent(recipient)}`
-            });
-            const result = await response.json();
-            console.log(result);
-            if (!result.status || result.status !== "success") {
-                showMessage("error", result.detail);
-            } else {
-                showMessage("success", "Call started successfully!");
-            }
-        });
-        zoomCallForm.addEventListener("submit", async (event) => {
-              event.preventDefault();
-              const meetingId = document.getElementById("meetingId").value;
-              const meetingPassword = document.getElementById("meetingPassword").value;
-            const outboundCallURL = "https://{{env_vars.BASE_URL}}/start_outbound_zoom";              
-              const response = await fetch(outboundCallURL, {
-                  method: "POST",
-                  headers: {"Content-Type": "application/x-www-form-urlencoded"},
-                  body: `meeting_id=${encodeURIComponent(meetingId)}&meeting_password=${encodeURIComponent(meetingPassword)}`
-              });
-              const result = await response.json();
-              console.log(result);
-              if (!result.status || result.status !== "success") {
-                  showMessage("error", result.detail);
-              } else {
-                  showMessage("success", "Call started successfully!");
-              }
-          });
-    </script>
 </body>
+<script src="{{ url_for('static', path='script.js') }}"></script>
 </html>
