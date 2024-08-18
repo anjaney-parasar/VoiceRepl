@@ -5,6 +5,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
   <title>Env Variables Check</title>
 </head>
 <body>
@@ -33,6 +34,22 @@
       <textarea name="Content" id="Content"></textarea>
       <input type="submit" value="Update Behaviour">
     </form>
+
+
+    <h2>Audio Settings</h2>
+    <form id="audioSettings", class="call-form">
+      <label for="playHTUserId" >Play.ht User ID</label>
+      <input type="text" id="playHTUserId" name="playHTUserId" >
+      <label for="playHTApiKey" >API Key</label>
+      <input type="text" name="playHTApiKey" id="playHTApiKey" >
+      <select name="avatar" id="avatar">
+      {% for key, value in avatars.items() %}
+      <option value="{{value}}">{{key}}</option>
+      {% endfor %}
+    </select>
+      <br>
+      <input type="submit" value="Update Voice Settings">
+    </form>
     
 
   <h2>Quick Outbound Call</h2>
@@ -55,5 +72,8 @@
     </form>
     <div id="messageContainer"></div>
 </body>
+<script>
+  const BASE_URL = "{{ env_vars.BASE_URL }}";
+</script>
 <script src="{{ url_for('static', path='script.js') }}"></script>
 </html>

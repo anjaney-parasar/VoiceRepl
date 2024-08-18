@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 import os
 from dotenv import load_dotenv
-from main import run_fastapi
+# from main import run_fastapi
 from server_manager import ServerManager
 from roadmap import prompt, roadmap
 import multiprocessing
@@ -28,7 +28,6 @@ def get_server_manager():
 def update_behaviour():
     st.session_state['system_prompt']=st.session_state['system_prompt_input']
     st.session_state['content']=st.session_state['content_input']
-
 
 def main():
     st.title("Visa Solution Advisor")

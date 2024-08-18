@@ -6,6 +6,15 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import sys 
 
+VOICE_AVATARS = {
+    "Default": "s3://voice-cloning-zero-shot/daab7575-42c8-48f1-b01c-ee4e3281fba7/original/manifest.json",
+    "Delilah": "s3://voice-cloning-zero-shot/1afba232-fae0-4b69-9675-7f1aac69349f/delilahsaad/manifest.json",
+    "Benton": "s3://voice-cloning-zero-shot/b41d1a8c-2c99-4403-8262-5808bc67c3e0/bentonsaad/manifest.json",
+    "Navya": "s3://voice-cloning-zero-shot/e5df2eb3-5153-40fa-9f6e-6e27bbb7a38e/original/manifest.json",
+    "Adolfo": "s3://voice-cloning-zero-shot/d82d246c-148b-457f-9668-37b789520891/adolfosaad/manifest.json"
+    # Add more voice avatars as needed
+}
+
 from vocode.logging import configure_pretty_logging
 from events_manager import EventsManager
 
@@ -22,6 +31,9 @@ from vocode.streaming.telephony.server.base import TwilioInboundCallConfig, Tele
 from vocode.streaming.synthesizer.play_ht_synthesizer_v2 import PlayHtSynthesizerConfig
 
 from speller_agent import SpellerAgentFactory, SpellerAgentConfig
+
+from config import BASE_URL
+
 
 import os
 from memory_config import config_manager
@@ -56,8 +68,7 @@ logger.setLevel(logging.DEBUG)
 
 # We need a base URL for Twilio to talk to:
 # If you're self-hosting and have an open IP/domain, set it here or in your env.
-BASE_URL = os.getenv("BASE_URL")
-print(BASE_URL)
+
 
 
 # If neither of the above are true, we need a tunnel.
@@ -152,6 +163,7 @@ async def root(request: Request):
   return templates.TemplateResponse("index.html", {
     "request": request,
     "env_vars": env_vars,
+    "avatars":VOICE_AVATARS 
   })
 
 
@@ -169,15 +181,19 @@ async def change_behaviour(
 
 @app.post("/update_play_ht_config")
 async def update_play_ht_config(
-    api_key: str = Form(...),
-    user_id: str = Form(...),
-    voice_id: str = Form(...)
+    apiKey: str = Form(...),
+    userId: str = Form(...),
+    avatar: str = Form(...)
 ):
     global SYNTH_CONFIG
+    print("avatar is ", avatar)
+    print("type of voice id ", type(avatar))
+    print("user id is ", userId)
+    print("apiKey is ", apiKey)
     SYNTH_CONFIG = PlayHtSynthesizerConfig.from_telephone_output_device(
-        api_key=api_key,
-        user_id=user_id,
-        voice_id=voice_id,
+        api_key=apiKey,
+        user_id=userId,
+        voice_id=avatar,
     )
     return {"status": "success"}
 
@@ -201,7 +217,7 @@ async def api_start_outbound_zoom(
 
 
 
-def run_fastapi(port=8000):
-    uvicorn.run(app, host="127.0.0.1", port=port)
+# def run_fastapi(port=8000):
+#     uvicorn.run(app, host="127.0.0.1", port=port)
 
 # uvicorn.run(app, host="0.0.0.0", port=3000)
