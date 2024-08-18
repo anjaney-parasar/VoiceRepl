@@ -1,37 +1,55 @@
-FROM python:3.9-bullseye
+# syntax=docker/dockerfile:1
 
-# get portaudio and ffmpeg
-RUN apt-get update \
-        && apt-get install libportaudio2 libportaudiocpp0 portaudio19-dev libasound-dev libsndfile1-dev -y
-RUN apt-get -y update
-RUN apt-get -y upgrade
-RUN apt-get install -y ffmpeg
+# Comments are provided throughout this file to help you get started.
+# If you need more help, visit the Dockerfile reference guide at
+# https://docs.docker.com/go/dockerfile-reference/
 
-WORKDIR /code
-COPY ./pyproject.toml /code/pyproject.toml
-COPY ./poetry.lock /code/poetry.lock
-RUN pip install --no-cache-dir --upgrade poetry
-RUN pip install httpx
-# RUN poetry config virtualenvs.create false
-# RUN poetry install --no-dev --no-interaction --no-ansi
-COPY main.py /code/main.py
-COPY streamlit_app.py /code/streamlit_app.py
-COPY speller_agent.py /code/speller_agent.py
-COPY memory_config.py /code/memory_config.py
-COPY events_manager.py /code/events_manager.py
-COPY agent.py /code/agent.py
-COPY roadmap.py /code/roadmap.py
-COPY server_manager.py /code/server_manager.py
-COPY synthesizer.py /code/synthesizer.py
-COPY transcriber.py /code/transcriber
-COPY twilio.py /code/twilio.py
+# Want to help us make this template better? Share your feedback here: https://forms.gle/ybq9Krt8jtBL3iCk7
 
-# COPY config.py /code/config.py
-# COPY instructions.txt /code/instructions.txt
-RUN mkdir -p /code/call_transcripts
-RUN mkdir -p /code/db
+ARG PYTHON_VERSION=3.10
+FROM python:${PYTHON_VERSION} as base
 
-# Copy the utils directory (and its contents) into the container
-# COPY ./utils /code/utils
+# Prevents Python from writing pyc files.
+ENV PYTHONDONTWRITEBYTECODE=1
 
-CMD ["streamlit", "run", "streamlit_app.py"]
+# Keeps Python from buffering stdout and stderr to avoid situations where
+# the application crashes without emitting any logs due to buffering.
+ENV PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+# Create a non-privileged user that the app will run under.
+# See https://docs.docker.com/go/dockerfile-user-best-practices/
+ARG UID=10001
+RUN adduser \
+    --disabled-password \
+    --gecos "" \
+    --home "/nonexistent" \
+    --shell "/sbin/nologin" \
+    --no-create-home \
+    --uid "${UID}" \
+    appuser
+
+# Download dependencies as a separate step to take advantage of Docker's caching.
+# Leverage a cache mount to /root/.cache/pip to speed up subsequent builds.
+# Leverage a bind mount to requirements.txt to avoid having to copy them into
+# into this layer.
+RUN apt-get update && \
+    apt-get install -y libportaudio2 libportaudiocpp0 portaudio19-dev libasound-dev libsndfile1-dev && \
+    pip install pyaudio
+
+
+RUN --mount=type=cache,target=/root/.cache/pip \
+    --mount=type=bind,source=requirements.txt,target=requirements.txt \
+    python -m pip install -r requirements.txt
+
+# Switch to the non-privileged user to run the application.
+
+# Copy the source code into the container.
+COPY . .
+
+# Expose the port that the application listens on.
+EXPOSE 8000
+
+# Run the application.
+CMD uvicorn main:app --port 8000 --host=0.0.0.0 --reload

@@ -72,18 +72,18 @@ logger.setLevel(logging.DEBUG)
 
 
 # If neither of the above are true, we need a tunnel.
-if not BASE_URL:
-  from pyngrok import ngrok
-  ngrok_auth = os.environ.get("NGROK_AUTH_TOKEN")
-  if ngrok_auth is not None:
-    ngrok.set_auth_token(ngrok_auth)
-  port = sys.argv[sys.argv.index("--port") +
-                  1] if "--port" in sys.argv else 3000
+# if not BASE_URL:
+#   from pyngrok import ngrok
+#   ngrok_auth = os.environ.get("NGROK_AUTH_TOKEN")
+#   if ngrok_auth is not None:
+#     ngrok.set_auth_token(ngrok_auth)
+#   port = sys.argv[sys.argv.index("--port") +
+#                   1] if "--port" in sys.argv else 3000
 
-  # Open a ngrok tunnel to the dev server
-  BASE_URL = ngrok.connect(port).public_url.replace("https://", "")
-  logger.info("ngrok tunnel \"{}\" -> \"http://127.0.0.1:{}\"".format(
-    BASE_URL, port))
+#   # Open a ngrok tunnel to the dev server
+#   BASE_URL = ngrok.connect(port).public_url.replace("https://", "")
+#   logger.info("ngrok tunnel \"{}\" -> \"http://127.0.0.1:{}\"".format(
+#     BASE_URL, port))
 
 # We store the state of the call in memory, but you can also use Redis.
 # https://docs.vocode.dev/telephony#accessing-call-information-in-your-agent
