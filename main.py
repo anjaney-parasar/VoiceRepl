@@ -1,11 +1,12 @@
 import logging
 from fastapi import FastAPI, Request, Form
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import sys 
 
-# from vocode.logging import configure_pretty_logging
+from vocode.logging import configure_pretty_logging
 from events_manager import EventsManager
 
 import asyncio
@@ -27,7 +28,7 @@ from memory_config import config_manager
 from dotenv import load_dotenv
 load_dotenv()
 
-# configure_pretty_logging()
+configure_pretty_logging()
 
 from typing import Optional
 
@@ -41,7 +42,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-# templates = Jinja2Templates(directory="templates")
+
+
+app.mount('/static', StaticFiles(directory='static'), name='static')
+templates = Jinja2Templates(directory="templates")
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
@@ -145,19 +149,21 @@ async def root(request: Request):
     "OUTBOUND_CALLER_NUMBER": os.environ.get("OUTBOUND_CALLER_NUMBER")
   }
 
-  # return templates.TemplateResponse("index.html", {
-  #   "request": request,
-  #   "env_vars": env_vars,
-  # })
+  return templates.TemplateResponse("index.html", {
+    "request": request,
+    "env_vars": env_vars,
+  })
 
 
 @app.post("/change_behaviour")
 async def change_behaviour(
-    system_prompt: str = Form(...),
-    content: str = Form(...)
-):
+    systemInstruction: str = Form(...),
+    contentPrompt: str = Form(...)
+):  
+    if systemInstruction:
+       print("This is working ")
     global AGENT_CONFIG
-    full_prompt = system_prompt + content
+    full_prompt = systemInstruction + contentPrompt
     AGENT_CONFIG.prompt_preamble = full_prompt
     return {"status": "success"}
 
