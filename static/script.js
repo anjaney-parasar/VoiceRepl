@@ -1,108 +1,117 @@
-const outboundCallForm = document.getElementById("outboundCallForm");
-const zoomCallForm = document.getElementById("zoomCallForm");
-const messageContainer = document.getElementById("messageContainer");
-const changeBehaviour = document.getElementById("changeBehaviour");
-const voiceSettings=document.getElementById("audioSettings");
-
-function showMessage(type, text) {
-    messageContainer.innerHTML = `<div class="message ${type}">${text}</div>`;
+function showMessage(formId, type, text) {
+  const messageContainer = document.querySelector(`#${formId} .message-container`);
+  messageContainer.innerHTML = `<div class="message ${type}">${text}</div>`;
 }
 
-voiceSettings.addEventListener('submit', async (event) => {
-  console.log("Request submitted to update the audio settings");
-  event.preventDefault();
-  const userId=document.getElementById("playHTUserId").value;
-  const apiKey=document.getElementById("playHTApiKey").value;  
-  const avatar=document.getElementById("avatar").value;
-  console.log(`avatar id is ${avatar}`)
-  console.log(`Got id ${userId}`);
-  console.log(`Got api key ${apiKey}`);
-  const playHTconfigURL=`https://${BASE_URL}/update_play_ht_config`;
+// Change Behaviour form
+document.getElementById("changeBehaviour").addEventListener('submit', async (event) => {
+event.preventDefault();
+const systemPrompt = document.getElementById("Behaviour").value;
+const content = document.getElementById("Content").value;
+const roadmapFile = document.getElementById("roadmapFile").files[0];
+const overrideBehaviour = document.getElementById("overrideBehaviour").checked;
 
-  const formData = new FormData();
-  formData.append('userId',userId);
-  formData.append('apiKey',apiKey);
-  formData.append('avatar',avatar);
+const changeBehaviourURL = `https://${BASE_URL}/change_behaviour`;
 
-  const response = await fetch(playHTconfigURL, {
-    method: "POST",
-    body: formData  // Send as FormData
-  });
+const formData = new FormData();
+formData.append('systemPrompt', systemPrompt);
+formData.append('content', content);
+if (roadmapFile) {
+  formData.append('roadmapFile', roadmapFile);
+}
+formData.append('overrideBehaviour', overrideBehaviour);
 
-  const result = await response.json();
-  console.log(result);
-  if (!result.status || result.status !== "success") {
-    showMessage("error", result.detail);
-  } else {
-    showMessage("success", "Audio Settings updated successfully!");
-  }
-})
-
-
-
-
-
-changeBehaviour.addEventListener('submit', async (event) => {
-  console.log("Request submitted for changing behaviour");
-  event.preventDefault();
-  const systemPrompt = document.getElementById("Behaviour").value;
-  const content = document.getElementById("Content").value;
-  console.log(`value of system prompt ${systemPrompt}`);
-  console.log(`value of content ${content}`);
-  const changeBehaviourURL = `https://${BASE_URL}/change_behaviour`;
-  
-  const formData = new FormData();
-  formData.append('systemPrompt', systemPrompt);
-  formData.append('content', content);
-
+try {
   const response = await fetch(changeBehaviourURL, {
     method: "POST",
-    body: formData  // Send as FormData
+    body: formData
   });
   
   const result = await response.json();
-  console.log(result);
   if (!result.status || result.status !== "success") {
-    showMessage("error", result.detail);
+    showMessage("changeBehaviour", "error", result.detail);
   } else {
-    showMessage("success", "Behaviour Changed successfully!");
+    showMessage("changeBehaviour", "success", "Behaviour Changed successfully!");
   }
+} catch (error) {
+  showMessage("changeBehaviour", "error", "An error occurred. Please try again.");
+}
 });
 
-outboundCallForm.addEventListener("submit", async (event) => {
-  console.log("TEST")
-  event.preventDefault();
-  const recipient = document.getElementById("recipient").value;
-  const outboundCallURL = `https://${BASE_URL}/start_outbound_call`;              
-    const response = await fetch(outboundCallURL, {
-        method: "POST",
-        headers: {"Content-Type": "application/x-www-form-urlencoded"},
-        body: `to_phone=${encodeURIComponent(recipient)}`
-    });
-    const result = await response.json();
-    console.log(result);
-    if (!result.status || result.status !== "success") {
-        showMessage("error", result.detail);
-    } else {
-        showMessage("success", "Call started successfully!");
-    }
-});
+// Audio Settings form
+document.getElementById("audioSettings").addEventListener('submit', async (event) => {
+event.preventDefault();
+const userId = document.getElementById("playHTUserId").value;
+const apiKey = document.getElementById("playHTApiKey").value;  
+const avatar = document.getElementById("avatar").value;
 
-zoomCallForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const meetingId = document.getElementById("meetingId").value;
-      const meetingPassword = document.getElementById("meetingPassword").value;
-    const outboundCallURL = `https://${BASE_URL}/start_outbound_zoom`;              
-      const response = await fetch(outboundCallURL, {
-          method: "POST",
-          headers: {"Content-Type": "application/x-www-form-urlencoded"},
-          body: `meeting_id=${encodeURIComponent(meetingId)}&meeting_password=${encodeURIComponent(meetingPassword)}`
-      });
-      const result = await response.json();
-      console.log(result);
-      if (!result.status || result.status !== "success") {
-          showMessage("error", result.detail);
-      } else {
-          showMessage("success", "Call started successfully!");
-      }
+const playHTconfigURL = `https://${BASE_URL}/update_play_ht_config`;
+
+const formData = new FormData();
+formData.append('userId', userId);
+formData.append('apiKey', apiKey);
+formData.append('avatar', avatar);
+
+try {
+  const response = await fetch(playHTconfigURL, {
+    method: "POST",
+    body: formData
   });
+
+  const result = await response.json();
+  if (!result.status || result.status !== "success") {
+    showMessage("audioSettings", "error", result.detail);
+  } else {
+    showMessage("audioSettings", "success", "Audio Settings updated successfully!");
+  }
+} catch (error) {
+  showMessage("audioSettings", "error", "An error occurred. Please try again.");
+}
+});
+
+// Quick Outbound Call form
+document.getElementById("outboundCallForm").addEventListener("submit", async (event) => {
+event.preventDefault();
+const recipient = document.getElementById("recipient").value;
+const outboundCallURL = `https://${BASE_URL}/start_outbound_call`;              
+
+try {
+  const response = await fetch(outboundCallURL, {
+    method: "POST",
+    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+    body: `to_phone=${encodeURIComponent(recipient)}`
+  });
+  const result = await response.json();
+  if (!result.status || result.status !== "success") {
+    showMessage("outboundCallForm", "error", result.detail);
+  } else {
+    showMessage("outboundCallForm", "success", "Call started successfully!");
+  }
+} catch (error) {
+  showMessage("outboundCallForm", "error", "An error occurred. Please try again.");
+}
+});
+
+// Zoom Meeting Call form
+document.getElementById("zoomCallForm").addEventListener("submit", async (event) => {
+event.preventDefault();
+const meetingId = document.getElementById("meetingId").value;
+const meetingPassword = document.getElementById("meetingPassword").value;
+const outboundCallURL = `https://${BASE_URL}/start_outbound_zoom`;              
+
+try {
+  const response = await fetch(outboundCallURL, {
+    method: "POST",
+    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+    body: `meeting_id=${encodeURIComponent(meetingId)}&meeting_password=${encodeURIComponent(meetingPassword)}`
+  });
+  const result = await response.json();
+  if (!result.status || result.status !== "success") {
+    showMessage("zoomCallForm", "error", result.detail);
+  } else {
+    showMessage("zoomCallForm", "success", "Call started successfully!");
+  }
+} catch (error) {
+  showMessage("zoomCallForm", "error", "An error occurred. Please try again.");
+}
+});
