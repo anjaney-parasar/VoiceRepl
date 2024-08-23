@@ -75,6 +75,10 @@
           <div class="message-container"></div>
         </form>
 
+        <input type="hidden" id="defaultPrompt" value="{{prompt}}">
+        <h2>Behaviour Prompt</h2>
+        <p id="currentBehaviorPrompt">{{prompt}}</p>
+
         
       </div>
     </div>
@@ -83,6 +87,8 @@
 </body>
 <script>
   const BASE_URL = "{{ env_vars.BASE_URL }}";
+  console.log(`Base URL is ${BASE_URL}`)
+  const defaultPrompt= "{{prompt}}";
 </script>
 <script src="{{ url_for('static', path='script.js') }}"></script>
 </html>

@@ -5,6 +5,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import sys 
+from roadmap import prompt
+
 
 VOICE_AVATARS = {
     "Default Medium": "s3://voice-cloning-zero-shot/daab7575-42c8-48f1-b01c-ee4e3281fba7/original/manifest.json",
@@ -148,6 +150,9 @@ async def start_outbound_zoom(meeting_id: Optional[str],
     await call.start()
 
 
+
+
+
 # Expose the starter webpage
 @app.get("/")
 async def root(request: Request):
@@ -164,12 +169,14 @@ async def root(request: Request):
   return templates.TemplateResponse("index.html", {
     "request": request,
     "env_vars": env_vars,
-    "avatars":VOICE_AVATARS 
+    "avatars":VOICE_AVATARS, 
+    "prompt":prompt
   })
 
 
 @app.post("/change_behaviour")
 async def change_behaviour(
+    request:Request,
     systemPrompt: str = Form(...),
     content: str = Form(...)
 ):  
@@ -179,6 +186,13 @@ async def change_behaviour(
     full_prompt = systemPrompt +content
     AGENT_CONFIG.prompt_preamble = full_prompt
     return {"status": "success"}
+    return templates.TemplateResponse("index.html", {
+    "request":request,
+    "avatars":VOICE_AVATARS, 
+    "env_vars": env_vars,
+    "prompt":systemPrompt
+  })
+    
 
 @app.post("/update_play_ht_config")
 async def update_play_ht_config(

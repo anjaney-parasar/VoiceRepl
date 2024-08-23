@@ -5,68 +5,67 @@ function showMessage(formId, type, text) {
 
 // Change Behaviour form
 document.getElementById("changeBehaviour").addEventListener('submit', async (event) => {
-event.preventDefault();
-const systemPrompt = document.getElementById("Behaviour").value;
-const content = document.getElementById("Content").value;
-const roadmapFile = document.getElementById("roadmapFile").files[0];
-const overrideBehaviour = document.getElementById("overrideBehaviour").checked;
+  event.preventDefault();
+  const systemPrompt = document.getElementById("Behaviour").value;
+  const content = document.getElementById("Content").value;
+  const roadmapFile = document.getElementById("roadmapFile").files[0];
+  const overrideBehaviour = document.getElementById("overrideBehaviour").checked;
+  const defaultPrompt = document.getElementById("defaultPrompt").value;
 
-const changeBehaviourURL = `https://${BASE_URL}/change_behaviour`;
-
-const formData = new FormData();
-formData.append('systemPrompt', systemPrompt);
-formData.append('content', content);
-if (roadmapFile) {
-  formData.append('roadmapFile', roadmapFile);
-}
-formData.append('overrideBehaviour', overrideBehaviour);
-
-try {
-  const response = await fetch(changeBehaviourURL, {
-    method: "POST",
-    body: formData
-  });
-  
-  const result = await response.json();
-  if (!result.status || result.status !== "success") {
-    showMessage("changeBehaviour", "error", result.detail);
+  let finalPrompt;
+  if (overrideBehaviour) {
+    finalPrompt = systemPrompt;
   } else {
-    showMessage("changeBehaviour", "success", "Behaviour Changed successfully!");
+    finalPrompt = `${defaultPrompt}\n\nAdditional instructions:\n${systemPrompt}`;
   }
-} catch (error) {
-  showMessage("changeBehaviour", "error", "An error occurred. Please try again.");
-}
+  console.log(`final prommpt is ${finalPrompt}`)
+  const changeBehaviourURL = `https://${BASE_URL}/change_behaviour`;
+  
+  const formData = new FormData();
+  formData.append('systemPrompt', finalPrompt);
+  formData.append('content', content);
+  if (roadmapFile) {
+    formData.append('roadmapFile', roadmapFile);
+  }
+  formData.append('overrideBehaviour', overrideBehaviour);
+
+  try {
+    const response = await fetch(changeBehaviourURL, {
+      method: "POST",
+      body: formData
+    });
+    
+    const result = await response.json();
+    if (!result.status || result.status !== "success") {
+      showMessage("changeBehaviour", "error", result.detail);
+    } else {
+      showMessage("changeBehaviour", "success", "Behaviour Changed successfully!");
+      
+      // Update the paragraph with the new behavior prompt
+      const currentBehaviorPromptElement = document.getElementById("currentBehaviorPrompt");
+      currentBehaviorPromptElement.textContent = finalPrompt;
+      
+      // Update the hidden input with the new prompt
+      document.getElementById("defaultPrompt").value = finalPrompt;
+      
+      // Optionally, you can add a visual indication that the text has been updated
+      currentBehaviorPromptElement.classList.add("updated");
+      setTimeout(() => {
+        currentBehaviorPromptElement.classList.remove("updated");
+      }, 3000);  // Remove the 'updated' class after 3 seconds
+    }
+  } catch (error) {
+    showMessage("changeBehaviour", "error", "An error occurred. Please try again.");
+  }
 });
 
-// Audio Settings form
-document.getElementById("audioSettings").addEventListener('submit', async (event) => {
-event.preventDefault();
-const userId = document.getElementById("playHTUserId").value;
-const apiKey = document.getElementById("playHTApiKey").value;  
-const avatar = document.getElementById("avatar").value;
-
-const playHTconfigURL = `https://${BASE_URL}/update_play_ht_config`;
-
-const formData = new FormData();
-formData.append('userId', userId);
-formData.append('apiKey', apiKey);
-formData.append('avatar', avatar);
-
-try {
-  const response = await fetch(playHTconfigURL, {
-    method: "POST",
-    body: formData
-  });
-
-  const result = await response.json();
-  if (!result.status || result.status !== "success") {
-    showMessage("audioSettings", "error", result.detail);
+document.getElementById("overrideBehaviour").addEventListener('change', function() {
+  const behaviourTextarea = document.getElementById("Behaviour");
+  if (this.checked) {
+    behaviourTextarea.placeholder = "Enter new behavior prompt to override default";
   } else {
-    showMessage("audioSettings", "success", "Audio Settings updated successfully!");
+    behaviourTextarea.placeholder = "Enter additional instructions to append to default prompt";
   }
-} catch (error) {
-  showMessage("audioSettings", "error", "An error occurred. Please try again.");
-}
 });
 
 // Quick Outbound Call form
