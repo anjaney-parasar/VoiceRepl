@@ -1,12 +1,20 @@
 import logging
 from fastapi import FastAPI, Request, Form
+from fastapi import UploadFile, File
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from pdf_reader import pdf_reader
 import uvicorn
 import sys 
+import os
+from dotenv import load_dotenv
+load_dotenv()
 from roadmap import prompt
+print("Transcript URL is",os.getenv("TRANSCRIPT_CALLBACK_URL"))
 
+
+# print("OpenAIAPI key is ",os.getenv("OPENAI_API_KEY"))
 
 VOICE_AVATARS = {
     "Default Medium": "s3://voice-cloning-zero-shot/daab7575-42c8-48f1-b01c-ee4e3281fba7/original/manifest.json",
@@ -65,31 +73,6 @@ logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-# First we will open up our TelephonyServer, which opens a path at
-# our BASE_URL. Once we have a path, we can request a call from
-# Twilio to Zoom's dial-in service or any phone number.
-
-# We need a base URL for Twilio to talk to:
-# If you're self-hosting and have an open IP/domain, set it here or in your env.
-
-
-
-# If neither of the above are true, we need a tunnel.
-# if not BASE_URL:
-#   from pyngrok import ngrok
-#   ngrok_auth = os.environ.get("NGROK_AUTH_TOKEN")
-#   if ngrok_auth is not None:
-#     ngrok.set_auth_token(ngrok_auth)
-#   port = sys.argv[sys.argv.index("--port") +
-#                   1] if "--port" in sys.argv else 3000
-
-#   # Open a ngrok tunnel to the dev server
-#   BASE_URL = ngrok.connect(port).public_url.replace("https://", "")
-#   logger.info("ngrok tunnel \"{}\" -> \"http://127.0.0.1:{}\"".format(
-#     BASE_URL, port))
-
-# We store the state of the call in memory, but you can also use Redis.
-# https://docs.vocode.dev/telephony#accessing-call-information-in-your-agent
 CONFIG_MANAGER = config_manager  #RedisConfigManager()
 
 
@@ -110,7 +93,6 @@ telephony_server = TelephonyServer(
 
 )
 app.include_router(telephony_server.get_router())
-
 
 # OutboundCall asks Twilio to call to_phone using our Twilio phone number
 # and open an audio stream to our TelephonyServer.
@@ -176,40 +158,70 @@ async def root(request: Request):
 
 @app.post("/change_behaviour")
 async def change_behaviour(
-    request:Request,
-    systemPrompt: str = Form(...),
-    content: str = Form(...)
+    request: Request,
+    systemPrompt: Optional[str] = Form(None),
+    content: Optional[str] = Form(None),
+    roadmapFile: Optional[UploadFile] = File(None),
+    overrideBehaviour: bool = Form(False)
 ):  
-    if systemPrompt:
-       print("This is working ")
     global AGENT_CONFIG
-    full_prompt = systemPrompt +content
-    AGENT_CONFIG.prompt_preamble = full_prompt
-    return {"status": "success"}
-    return templates.TemplateResponse("index.html", {
-    "request":request,
-    "avatars":VOICE_AVATARS, 
-    "env_vars": env_vars,
-    "prompt":systemPrompt
-  })
     
+    if not systemPrompt and not content and not roadmapFile:
+        return {"status": "error", "detail": "Please provide either a Behaviour Prompt or a Roadmap."}
+
+    full_prompt = ""
+    if systemPrompt:
+        full_prompt += systemPrompt
+
+    if content:
+        full_prompt += ("\n\n" + content) if full_prompt else content
+
+    if roadmapFile:
+        file_content = await roadmapFile.read()
+        if roadmapFile.filename.lower().endswith('.pdf'):
+           roadmap_text=pdf_reader(file_content)
+        else:
+           roadmap_text= file_content.decode('utf-8')   
+        
+        full_prompt += ("\n\n" + roadmap_text) if full_prompt else roadmap_text
+
+    AGENT_CONFIG.prompt_preamble = full_prompt
+
+    return {
+        "status": "success",
+        "message": "Behaviour/Roadmap updated successfully",
+        "updated_prompt": full_prompt
+    }    
 
 @app.post("/update_play_ht_config")
 async def update_play_ht_config(
-    apiKey: str = Form(...),
-    userId: str = Form(...),
-    avatar: str = Form(...)
+    # systemPrompt: Optional[str] = Form(None),
+    # content: Optional[str] = Form(None),
+    apiKey: Optional[str] = Form(None),
+    userId: Optional[str] = Form(None),
+    avatar: Optional[str] = Form(None)
 ):
     global SYNTH_CONFIG
     print("avatar is ", avatar)
     print("type of voice id ", type(avatar))
     print("user id is ", userId)
     print("apiKey is ", apiKey)
-    SYNTH_CONFIG = PlayHtSynthesizerConfig.from_telephone_output_device(
-        api_key=apiKey,
-        user_id=userId,
-        voice_id=avatar,
-    )
+    if userId and apiKey:
+      SYNTH_CONFIG = PlayHtSynthesizerConfig.from_telephone_output_device(
+          api_key=apiKey,
+          user_id=userId,
+          voice_id=avatar,
+      )
+    else:
+       apiKey=os.getenv("PLAY_HT_API_KEY")
+       userId=os.getenv("PLAY_HT_USER_ID")
+       print("sending avatar to synth config")
+       SYNTH_CONFIG = PlayHtSynthesizerConfig.from_telephone_output_device(
+          api_key=apiKey,
+          user_id=userId,
+          voice_id=avatar,
+      )
+    print("sending avatar to synth config")
     return {"status": "success"}
 
 @app.post("/add_transcript")

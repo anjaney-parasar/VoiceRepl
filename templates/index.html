@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  <!-- <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"> -->
   <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
   <title>Solution Advisor Agent</title>
 </head>
@@ -27,6 +27,8 @@
               <span>Upload Roadmap File</span>
               <input type="file" id="roadmapFile" name="roadmapFile" accept=".txt,.pdf,.doc,.docx">
             </label>
+            <br>
+            <span id="selectedFileName"></span>
             
             <div class="checkbox-container">
               <input type="checkbox" id="overrideBehaviour" name="overrideBehaviour">
@@ -51,7 +53,9 @@
             {% endfor %}
           </select>
           <input type="submit" value="Update Voice Settings">
+          <div class="message-container"></div>
         </form>
+        
       </div>
 
       <div class="column">
@@ -84,11 +88,8 @@
     </div>
 
     <div id="messageContainer"></div>
-</body>
-<script>
-  const BASE_URL = "{{ env_vars.BASE_URL }}";
-  console.log(`Base URL is ${BASE_URL}`)
-  const defaultPrompt= "{{prompt}}";
-</script>
+    <input type="hidden" id="BASE_URL" value="{{ env_vars.BASE_URL }}">  
+  </body>
+
 <script src="{{ url_for('static', path='script.js') }}"></script>
 </html>

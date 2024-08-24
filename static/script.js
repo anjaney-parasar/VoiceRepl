@@ -3,6 +3,8 @@ function showMessage(formId, type, text) {
   messageContainer.innerHTML = `<div class="message ${type}">${text}</div>`;
 }
 
+const BASE_URL= document.getElementById("BASE_URL").value
+
 // Change Behaviour form
 document.getElementById("changeBehaviour").addEventListener('submit', async (event) => {
   event.preventDefault();
@@ -12,20 +14,28 @@ document.getElementById("changeBehaviour").addEventListener('submit', async (eve
   const overrideBehaviour = document.getElementById("overrideBehaviour").checked;
   const defaultPrompt = document.getElementById("defaultPrompt").value;
 
-  let finalPrompt;
-  if (overrideBehaviour) {
-    finalPrompt = systemPrompt;
-  } else {
-    finalPrompt = `${defaultPrompt}\n\nAdditional instructions:\n${systemPrompt}`;
+  if (!systemPrompt && !content && !roadmapFile) {
+    showMessage("changeBehaviour", "error", "Please provide either a Behaviour Prompt or a Roadmap.");
+    return;
   }
-  console.log(`final prommpt is ${finalPrompt}`)
+
+  let finalPrompt;
+  if (overrideBehaviour && systemPrompt) {
+    finalPrompt = systemPrompt;
+  } else if (systemPrompt) {
+    finalPrompt = `${defaultPrompt}\n\nAdditional instructions:\n${systemPrompt}`;
+  } else {
+    finalPrompt = defaultPrompt;
+  }
+
   const changeBehaviourURL = `https://${BASE_URL}/change_behaviour`;
   
   const formData = new FormData();
-  formData.append('systemPrompt', finalPrompt);
-  formData.append('content', content);
+  if (systemPrompt) formData.append('systemPrompt', finalPrompt);
+  if (content) formData.append('content', content);
   if (roadmapFile) {
     formData.append('roadmapFile', roadmapFile);
+    showMessage("changeBehaviour", "info", `Uploading file: ${roadmapFile.name}`);
   }
   formData.append('overrideBehaviour', overrideBehaviour);
 
@@ -37,26 +47,37 @@ document.getElementById("changeBehaviour").addEventListener('submit', async (eve
     
     const result = await response.json();
     if (!result.status || result.status !== "success") {
-      showMessage("changeBehaviour", "error", result.detail);
+      showMessage("changeBehaviour", "error", result.detail || "An error occurred");
     } else {
-      showMessage("changeBehaviour", "success", "Behaviour Changed successfully!");
+      let successMessage = "Behaviour/Roadmap updated successfully!";
+      if (roadmapFile) {
+        successMessage += ` File "${roadmapFile.name}" uploaded and processed.`;
+      }
+      showMessage("changeBehaviour", "success", successMessage);
       
-      // Update the paragraph with the new behavior prompt
-      const currentBehaviorPromptElement = document.getElementById("currentBehaviorPrompt");
-      currentBehaviorPromptElement.textContent = finalPrompt;
-      
-      // Update the hidden input with the new prompt
-      document.getElementById("defaultPrompt").value = finalPrompt;
-      
-      // Optionally, you can add a visual indication that the text has been updated
-      currentBehaviorPromptElement.classList.add("updated");
-      setTimeout(() => {
-        currentBehaviorPromptElement.classList.remove("updated");
-      }, 3000);  // Remove the 'updated' class after 3 seconds
+      if (systemPrompt) {
+        const currentBehaviorPromptElement = document.getElementById("currentBehaviorPrompt");
+        currentBehaviorPromptElement.textContent = finalPrompt;
+        document.getElementById("defaultPrompt").value = finalPrompt;
+        currentBehaviorPromptElement.classList.add("updated");
+        setTimeout(() => {
+          currentBehaviorPromptElement.classList.remove("updated");
+        }, 3000);
+      }
+
+      // Clear the file input and selected file name display
+      document.getElementById('roadmapFile').value = '';
+      document.getElementById('selectedFileName').textContent = '';
     }
   } catch (error) {
     showMessage("changeBehaviour", "error", "An error occurred. Please try again.");
   }
+});
+
+
+document.getElementById('roadmapFile').addEventListener('change', function(event) {
+  const fileName = event.target.files[0]?.name;
+  document.getElementById('selectedFileName').textContent = fileName ? fileName : '';
 });
 
 document.getElementById("overrideBehaviour").addEventListener('change', function() {
@@ -67,6 +88,51 @@ document.getElementById("overrideBehaviour").addEventListener('change', function
     behaviourTextarea.placeholder = "Enter additional instructions to append to default prompt";
   }
 });
+
+
+// Audio Settings form
+document.getElementById("audioSettings").addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const userId = document.getElementById("playHTUserId").value;
+  const apiKey = document.getElementById("playHTApiKey").value;  
+  const avatar = document.getElementById("avatar").value;
+  
+  if ((userId || apiKey) && (!userId || !apiKey)){
+    showMessage("audioSettings","error","Please provide both UserID and API key")
+    return;
+  }
+
+
+  const playHTconfigURL = `https://${BASE_URL}/update_play_ht_config`;
+  
+  const formData = new FormData();
+
+  if ( userId && apiKey) {
+    formData.append('userId', userId);
+    formData.append('apiKey', apiKey);
+  }
+  if (avatar) {
+    formData.append('avatar', avatar);
+  }  
+
+  
+  try {
+    const response = await fetch(playHTconfigURL, {
+      method: "POST",
+      body: formData
+    });
+  
+    const result = await response.json();
+    if (!result.status || result.status !== "success") {
+      showMessage("audioSettings", "error", result.detail);
+    } else {
+      showMessage("audioSettings", "success", "Audio Settings updated successfully!");
+    }
+  } catch (error) {
+    showMessage("audioSettings", "error", "An error occurred. Please try again.");
+  }
+  });
+  
 
 // Quick Outbound Call form
 document.getElementById("outboundCallForm").addEventListener("submit", async (event) => {
