@@ -36,7 +36,7 @@ class EventsManager(events_manager.EventsManager):
                 response = await client.post(complete_url, json=data)
 
                 # Handle the response as needed (e.g., check for success or failure)
-                if response.status_code == 200:
+                if response.status_code == 201:
                     print("Transcript sent successfully.")
                 else:
                     print("Failed to send transcript.")
