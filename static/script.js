@@ -5,6 +5,34 @@ function showMessage(formId, type, text) {
 
 const BASE_URL= document.getElementById("BASE_URL").value
 
+// Set client Email
+document.getElementById("clientEmail").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const clientEmail=document.getElementById('email').value;
+  const addEmailURL=`https://${BASE_URL}/add_client_email`
+  const formData= new FormData();
+  if (clientEmail) formData.append('clientEmail',clientEmail)
+  try {
+    const response=await fetch(addEmailURL,{
+      method:"POST",
+      body:formData
+    });
+
+    const result = await response.json();
+    if (!result.status || result.status !=="success"){
+      showMessage("clientEmail", "error", result.detail);
+    } else {
+      showMessage("clientEmail","success","Client Email Added successfully!");
+    }
+  }
+  catch(error){
+    showMessage("clientEmail","error","An error occured. Please try again.")
+  }
+});
+
+
+
+
 // Change Behaviour form
 document.getElementById("changeBehaviour").addEventListener('submit', async (event) => {
   event.preventDefault();
@@ -96,6 +124,8 @@ document.getElementById("audioSettings").addEventListener('submit', async (event
   const userId = document.getElementById("playHTUserId").value;
   const apiKey = document.getElementById("playHTApiKey").value;  
   const avatar = document.getElementById("avatar").value;
+  // const voice_name= avatar.voice_name
+  // const language_code = avatar.language_code
   
   if ((userId || apiKey) && (!userId || !apiKey)){
     showMessage("audioSettings","error","Please provide both UserID and API key")
@@ -113,6 +143,8 @@ document.getElementById("audioSettings").addEventListener('submit', async (event
   }
   if (avatar) {
     formData.append('avatar', avatar);
+    // formData.append('voice_name',voice_name);
+    // formData.append('language_code',language_code);
   }  
 
   

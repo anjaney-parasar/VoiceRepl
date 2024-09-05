@@ -1,6 +1,6 @@
 import streamlit as st
 
-client_name="Client"
+client_name="Fuad"
 prompt="""You are a visa expert whose role is to explain to client their visa roadmap which was drafted by a 
 solution architect(the person who makes visa roadmaps based on client information), go through the roadmap and  explain
 the points and the insights, explain to the client what various technical terms on the roadmap mean and imply,

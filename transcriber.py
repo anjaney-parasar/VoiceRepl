@@ -1,4 +1,4 @@
-from vocode.streaming.transcriber.deepgram_transcriber import DeepgramEndpointingConfig
+from vocode.streaming.transcriber.deepgram_transcriber import DeepgramEndpointingConfig,PunctuationEndpointingConfig,TimeEndpointingConfig
 
 from vocode.streaming.models.transcriber import (
     DeepgramTranscriberConfig,
@@ -11,7 +11,8 @@ from vocode.streaming.models.transcriber import (
           EndpointingConfig,
           AssemblyAITranscriberConfig,
           GoogleTranscriberConfig,
-          GladiaTranscriberConfig)
+          GladiaTranscriberConfig,
+          AzureTranscriberConfig)
 
 # TRANS_CONFIG=AssemblyAITranscriberConfig.from_telephone_input_device(
 #                                     #  sampling_rate=8000,
@@ -23,9 +24,9 @@ from vocode.streaming.models.transcriber import (
 #                                      )
 #                 )
 
-TRANS_CONFIG=GoogleTranscriberConfig.from_telephone_input_device(
-             )
-
+# TRANS_CONFIG=GoogleTranscriberConfig.from_telephone_input_device(f
+#              )
+TRANS_CONFIG=AzureTranscriberConfig.from_telephone_input_device()
 
 # TRANS_CONFIG=GoogleTranscriberConfig.from_telephone_input_device(endpointing_config=EndpointingConfig(),
 #                                     #  sampling_rate=8000,

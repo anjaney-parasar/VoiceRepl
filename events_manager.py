@@ -11,8 +11,9 @@ import httpx
 
 class EventsManager(events_manager.EventsManager):
 
-    def __init__(self):
+    def __init__(self,email):
         super().__init__(subscriptions=[EventType.TRANSCRIPT_COMPLETE])
+        self.email=email
 
     async def handle_event(self, event: Event):
         if event.type == EventType.TRANSCRIPT_COMPLETE:
@@ -20,6 +21,7 @@ class EventsManager(events_manager.EventsManager):
             
             # Prepare the data to be sent
             data = {
+                "email":self.email,
                 "conversation_id": transcript_complete_event.conversation_id,
                 "user_id": 1,  # demo user id
                 "transcript": transcript_complete_event.transcript.to_string()
@@ -29,14 +31,20 @@ class EventsManager(events_manager.EventsManager):
             # webhook_url = os.environ.get("TRANSCRIPT_CALLBACK_URL")
             BASE_URL=os.getenv("BASE_URL")
             complete_url=os.getenv("TRANSCRIPT_CALLBACK_URL")
-
+            make_url="https://hook.eu2.make.com/c1e8g64lgtwo2zqeija4xfnejyt6tmnt"
             # complete_url=f"https://{BASE_URL}/events"
             # Make the async HTTP POST request
             async with httpx.AsyncClient() as client:
                 response = await client.post(complete_url, json=data)
+                summary_res= await client.post(make_url, json=data)
 
                 # Handle the response as needed (e.g., check for success or failure)
                 if response.status_code == 201:
                     print("Transcript sent successfully.")
                 else:
                     print("Failed to send transcript.")
+                
+                if summary_res.status_code==200:
+                    print("Summary sent successfully over mail")
+                else:
+                    print("Failed to send meeting summary over mail")

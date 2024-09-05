@@ -93,10 +93,11 @@ telephony_server = TelephonyServer(
                       transcriber_config=TRANS_CONFIG
                       )
   ],
-  events_manager=EventsManager()
+  events_manager=EventsManager(email="canujigarg@gmail.com")
   # logger=logger,
 
 )
+
 app.include_router(telephony_server.get_router())
 
 # OutboundCall asks Twilio to call to_phone using our Twilio phone number
