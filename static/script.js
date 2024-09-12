@@ -121,26 +121,26 @@ document.getElementById("overrideBehaviour").addEventListener('change', function
 // Audio Settings form
 document.getElementById("audioSettings").addEventListener('submit', async (event) => {
   event.preventDefault();
-  const userId = document.getElementById("playHTUserId").value;
-  const apiKey = document.getElementById("playHTApiKey").value;  
+  // const userId = document.getElementById("playHTUserId").value;
+  // const apiKey = document.getElementById("playHTApiKey").value;  
   const avatar = document.getElementById("avatar").value;
   // const voice_name= avatar.voice_name
   // const language_code = avatar.language_code
   
-  if ((userId || apiKey) && (!userId || !apiKey)){
-    showMessage("audioSettings","error","Please provide both UserID and API key")
-    return;
-  }
+  // if ((userId || apiKey) && (!userId || !apiKey)){
+  //   showMessage("audioSettings","error","Please provide both UserID and API key")
+  //   return;
+  // }
 
 
   const playHTconfigURL = `https://${BASE_URL}/update_play_ht_config`;
   
   const formData = new FormData();
 
-  if ( userId && apiKey) {
-    formData.append('userId', userId);
-    formData.append('apiKey', apiKey);
-  }
+  // if ( userId && apiKey) {
+  //   formData.append('userId', userId);
+  //   formData.append('apiKey', apiKey);
+  // }
   if (avatar) {
     formData.append('avatar', avatar);
     // formData.append('voice_name',voice_name);

@@ -12,23 +12,38 @@ from dotenv import load_dotenv
 load_dotenv()
 from roadmap import prompt
 print("Transcript URL is",os.getenv("TRANSCRIPT_CALLBACK_URL"))
+print("Open AI env key is ", os.getenv("OPENAI_API_KEY"))
 
 
 # print("OpenAIAPI key is ",os.getenv("OPENAI_API_KEY"))
 
-VOICE_AVATARS = {
-    "Navya Fast": "s3://voice-cloning-zero-shot/e5df2eb3-5153-40fa-9f6e-6e27bbb7a38e/original/manifest.json",
-    "Delilah Slow": "s3://voice-cloning-zero-shot/1afba232-fae0-4b69-9675-7f1aac69349f/delilahsaad/manifest.json",
-    "Benton Fast": "s3://voice-cloning-zero-shot/b41d1a8c-2c99-4403-8262-5808bc67c3e0/bentonsaad/manifest.json",
-    "Adolfo Medium": "s3://voice-cloning-zero-shot/d82d246c-148b-457f-9668-37b789520891/adolfosaad/manifest.json",
-    "AY Medium":"",
-    "Charlotte (Narrative)":"s3://voice-cloning-zero-shot/a59cb96d-bba8-4e24-81f2-e60b888a0275/charlottenarrativesaad/manifest.json",
-    "Dylan":"s3://voice-cloning-zero-shot/3a831d1f-2183-49de-b6d8-33f16b2e9867/dylansaad/manifest.json",
-    "Susan (Adversting)":"s3://voice-cloning-zero-shot/f6594c50-e59b-492c-bac2-047d57f8bdd8/susanadvertisingsaad/manifest.json",
-    "Olivia - Canadian (Advertising)":"s3://voice-cloning-zero-shot/9fc626dc-f6df-4f47-a112-39461e8066aa/oliviaadvertisingsaad/manifest.json",
-    "Micah (Smooth)":"s3://voice-cloning-zero-shot/a5cc7dd9-069c-4fe8-9ae7-0c4bae4779c5/micahsaad/manifest.json",
-    "Samuel (Slow Tempo)":"s3://voice-cloning-zero-shot/36e9c53d-ca4e-4815-b5ed-9732be3839b4/samuelsaad/manifest.json"
-    # Add more voice avatars as needed
+# VOICE_AVATARS = {
+#     "Navya Fast": "s3://voice-cloning-zero-shot/e5df2eb3-5153-40fa-9f6e-6e27bbb7a38e/original/manifest.json",
+#     "Delilah Slow": "s3://voice-cloning-zero-shot/1afba232-fae0-4b69-9675-7f1aac69349f/delilahsaad/manifest.json",
+#     "Benton Fast": "s3://voice-cloning-zero-shot/b41d1a8c-2c99-4403-8262-5808bc67c3e0/bentonsaad/manifest.json",
+#     "Adolfo Medium": "s3://voice-cloning-zero-shot/d82d246c-148b-457f-9668-37b789520891/adolfosaad/manifest.json",
+#     "AY Medium":"",
+#     "Charlotte (Narrative)":"s3://voice-cloning-zero-shot/a59cb96d-bba8-4e24-81f2-e60b888a0275/charlottenarrativesaad/manifest.json",
+#     "Dylan":"s3://voice-cloning-zero-shot/3a831d1f-2183-49de-b6d8-33f16b2e9867/dylansaad/manifest.json",
+#     "Susan (Adversting)":"s3://voice-cloning-zero-shot/f6594c50-e59b-492c-bac2-047d57f8bdd8/susanadvertisingsaad/manifest.json",
+#     "Olivia - Canadian (Advertising)":"s3://voice-cloning-zero-shot/9fc626dc-f6df-4f47-a112-39461e8066aa/oliviaadvertisingsaad/manifest.json",
+#     "Micah (Smooth)":"s3://voice-cloning-zero-shot/a5cc7dd9-069c-4fe8-9ae7-0c4bae4779c5/micahsaad/manifest.json",
+#     "Samuel (Slow Tempo)":"s3://voice-cloning-zero-shot/36e9c53d-ca4e-4815-b5ed-9732be3839b4/samuelsaad/manifest.json"
+#     # Add more voice avatars as needed
+# }
+
+
+VOICE_AVATARS={
+   "Ezinne":{"language_code":"en-NG","voice_name":"en-NG-EzinneNeural"},
+   "Abeo":{"language_code":"en-NG","voice_name":"en-NG-AbeoNeural"},
+   "Neerja":{"language_code":"en-IN","voice_name":"en-IN-NeerjaNeural"},
+   "Prabhat":{"language_code":"en-IN","voice_name":"en-IN-PrabhatNeural"},
+   "Ananya":{"language_code":"en-IN","voice_name":"en-IN-AnanyaNeural"},
+   "Ava":{"language_code":"en-US","voice_name":"en-US-AvaNeural"},
+   "Emma":{"language_code":"en-US","voice_name":"en-US-EmmaNeural"},
+   "Jason":{"language_code":"en-US","voice_name":"en-US-JasonNeural"},
+   "Sara":{"language_code":"en-US","voice_name":"en-US-SaraNeural"},
+   "Tony":{"language_code":"en-US","voice_name":"en-US-TonyNeural"}
 }
 
 from vocode.logging import configure_pretty_logging
@@ -93,7 +108,7 @@ telephony_server = TelephonyServer(
                       transcriber_config=TRANS_CONFIG
                       )
   ],
-  events_manager=EventsManager(email="canujigarg@gmail.com")
+  events_manager=EventsManager(email="anjaneyparasar14@gmail.com")
   # logger=logger,
 
 )
@@ -212,23 +227,28 @@ async def update_play_ht_config(
     print("type of voice id ", type(avatar))
     print("user id is ", userId)
     print("apiKey is ", apiKey)
-    if userId and apiKey:
-      SYNTH_CONFIG = PlayHtSynthesizerConfig.from_telephone_output_device(
-          api_key=apiKey,
-          user_id=userId,
-          voice_id=avatar,
-      )
-    else:
-       apiKey=os.getenv("PLAY_HT_API_KEY")
-       userId=os.getenv("PLAY_HT_USER_ID")
-       print("sending avatar to synth config")
-       SYNTH_CONFIG = PlayHtSynthesizerConfig.from_telephone_output_device(
-          api_key=apiKey,
-          user_id=userId,
-          voice_id=avatar,
-      )
+    # if userId and apiKey:
+    #   SYNTH_CONFIG = PlayHtSynthesizerConfig.from_telephone_output_device(
+    #       api_key=apiKey,
+    #       user_id=userId,
+    #       voice_id=avatar,
+    #   )
+    # else:
+    #    apiKey=os.getenv("PLAY_HT_API_KEY")
+    #    userId=os.getenv("PLAY_HT_USER_ID")
+    #    print("sending avatar to synth config")
+    #    SYNTH_CONFIG = PlayHtSynthesizerConfig.from_telephone_output_device(
+    #       api_key=apiKey,
+    #       user_id=userId,
+    #       voice_id=avatar,
+    #   )
+    
     print("sending avatar to synth config")
     return {"status": "success"}
+
+@app.post("/add_client_email")
+async def client_email():
+   return {"status":"success"}
 
 @app.post("/add_transcript")
 async def transcript():
