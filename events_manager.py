@@ -45,6 +45,6 @@ class EventsManager(events_manager.EventsManager):
                     print("Failed to send transcript.")
                 
                 if summary_res.status_code==200:
-                    print("Summary sent successfully over mail")
+                    print(f"Summary sent successfully over mail to {self.email}  ")
                 else:
                     print("Failed to send meeting summary over mail")

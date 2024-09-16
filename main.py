@@ -1,4 +1,5 @@
 import logging
+import json
 from fastapi import FastAPI, Request, Form
 from fastapi import UploadFile, File
 from fastapi.templating import Jinja2Templates
@@ -95,6 +96,7 @@ logger.setLevel(logging.DEBUG)
 
 CONFIG_MANAGER = config_manager  #RedisConfigManager()
 
+events_manager=EventsManager(email="anjaneyparasar14@gmail.com")
 
 # Let's create and expose that TelephonyServer.
 telephony_server = TelephonyServer(
@@ -108,10 +110,20 @@ telephony_server = TelephonyServer(
                       transcriber_config=TRANS_CONFIG
                       )
   ],
-  events_manager=EventsManager(email="anjaneyparasar14@gmail.com")
+  events_manager=events_manager
   # logger=logger,
 
 )
+
+
+@app.post("/update_email")
+async def update_email(clientEmail:str=Form(...)):
+   print("Entering  into update email endpoint")
+   global events_manager
+   events_manager.email=clientEmail
+   print("Email changed successfully")
+   return {"status":"success","message":f"Email updated to {clientEmail}"}
+
 
 app.include_router(telephony_server.get_router())
 
@@ -151,9 +163,6 @@ async def start_outbound_zoom(meeting_id: Optional[str],
                       transcriber_config=TRANS_CONFIG
                       )
     await call.start()
-
-
-
 
 
 # Expose the starter webpage
@@ -224,9 +233,16 @@ async def update_play_ht_config(
 ):
     global SYNTH_CONFIG
     print("avatar is ", avatar)
-    print("type of voice id ", type(avatar))
+    
+    print("type of avatar ", type(avatar))
+    avatar_json_string = avatar.replace("'", '"')
+    avatar=json.loads(avatar_json_string)
+    
+    print("language code is ", avatar['language_code'])
     print("user id is ", userId)
     print("apiKey is ", apiKey)
+    SYNTH_CONFIG.voice_name=avatar['voice_name']
+    SYNTH_CONFIG.language_code=avatar['language_code']
     # if userId and apiKey:
     #   SYNTH_CONFIG = PlayHtSynthesizerConfig.from_telephone_output_device(
     #       api_key=apiKey,

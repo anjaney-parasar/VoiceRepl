@@ -25,7 +25,7 @@ AGENT_CONFIG = ChatGPTAgentConfig(
     # send_filler_audio=filler_audio_config,
     goodbye_phrases=['bye','goodbye'],
     interrupt_sensitivity="high",
-    cut_off_response=cutoff_response ,
+    # cut_off_response=cutoff_response ,
 
 )
 

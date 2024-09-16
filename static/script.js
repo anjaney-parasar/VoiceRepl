@@ -9,7 +9,7 @@ const BASE_URL= document.getElementById("BASE_URL").value
 document.getElementById("clientEmail").addEventListener("submit", async (event) => {
   event.preventDefault();
   const clientEmail=document.getElementById('email').value;
-  const addEmailURL=`https://${BASE_URL}/add_client_email`
+  const addEmailURL=`https://${BASE_URL}/update_email`
   const formData= new FormData();
   if (clientEmail) formData.append('clientEmail',clientEmail)
   try {
@@ -121,9 +121,9 @@ document.getElementById("overrideBehaviour").addEventListener('change', function
 // Audio Settings form
 document.getElementById("audioSettings").addEventListener('submit', async (event) => {
   event.preventDefault();
-  // const userId = document.getElementById("playHTUserId").value;
-  // const apiKey = document.getElementById("playHTApiKey").value;  
+  console.log('Sending the avatar  ')
   const avatar = document.getElementById("avatar").value;
+  console.log(`avatar is ${avatar}`)
   // const voice_name= avatar.voice_name
   // const language_code = avatar.language_code
   
