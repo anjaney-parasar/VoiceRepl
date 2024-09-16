@@ -10,7 +10,7 @@ from vocode.streaming.models.transcriber import (
           WhisperCPPTranscriberConfig,
           EndpointingConfig,
           AssemblyAITranscriberConfig,
-          GoogleTranscriberConfig,
+        #   GoogleTranscriberConfig,
           GladiaTranscriberConfig,
           AzureTranscriberConfig)
 

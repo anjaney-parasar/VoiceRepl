@@ -4,7 +4,7 @@ from vocode.streaming.models.synthesizer import ElevenLabsSynthesizerConfig, Str
 from vocode.streaming.synthesizer.play_ht_synthesizer_v2 import PlayHtSynthesizerV2
 from vocode.streaming.synthesizer.play_ht_synthesizer_v2 import PlayHtSynthesizerConfig
 
-from vocode.streaming.synthesizer.google_synthesizer import GoogleSynthesizer, GoogleSynthesizerConfig
+# from vocode.streaming.synthesizer.google_synthesizer import GoogleSynthesizer, GoogleSynthesizerConfig
 from vocode.streaming.synthesizer.azure_synthesizer import AzureSynthesizerConfig
 # from vocode.streaming.synthesizer.gtts_synthesizer import GTTSSynthesizerConfig, GTTSSynthesizer
 
